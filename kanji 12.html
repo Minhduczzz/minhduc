@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra phiên âm Hiragana</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f7e6c7;
+            text-align: center;
+            background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png'); /* Hoa văn Nhật Bản nhẹ */
+            background-size: cover;
+            position: relative;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #d32f2f;
+            color: white;
+            font-size: 18px;
+        }
+        td input {
+            font-size: 16px;
+        }
+        .kanji {
+            font-size: 200%;
+            font-weight: normal;
+            color: #d32f2f;
+        }
+        .correct {
+            background-color: #c8e6c9;
+            color: green;
+            font-size: 20px;
+        }
+        .incorrect {
+            background-color: #ffcdd2;
+            color: red;
+            font-size: 20px;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        .corner-symbol {
+            position: absolute;
+            font-size: 50px;
+        }
+        .top-left { top: 10px; left: 10px; }
+        .top-right { top: 10px; right: 10px; }
+        .bottom-left { bottom: 10px; left: 10px; }
+        .bottom-right { bottom: 10px; right: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Kiểm tra phiên âm Hiragana</h2>
+    <div class="corner-symbol top-left">🏯</div>
+    <div class="corner-symbol top-right">🍣</div>
+    <div class="corner-symbol bottom-left">🗻</div>
+    <div class="corner-symbol bottom-right">🌸</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Kanji</th>
+                <th>Nhập Hiragana</th>
+                <th>Kết quả</th>
+            </tr>
+        </thead>
+        <tbody id="kanjiTable"></tbody>
+    </table>
+    <button onclick="checkAnswers()">Kiểm tra</button>
+    <script>
+        const words = [
+            { kanji: "音楽", hiragana: "おんがく" },
+            { kanji: "楽しい", hiragana: "たのしい" },
+            { kanji: "楽しみ", hiragana: "たのしみ" },
+            { kanji: "楽な", hiragana: "らくな" },
+            { kanji: "歌う", hiragana: "うたう" },
+            { kanji: "歌手", hiragana: "かしゅ" },
+            { kanji: "自転車", hiragana: "じてんしゃ" },
+            { kanji: "自動車", hiragana: "じどうしゃ" },
+            { kanji: "自由", hiragana: "じゆう" },
+            { kanji: "自信", hiragana: "じしん" },
+            { kanji: "転ぶ", hiragana: "ころぶ" },
+            { kanji: "運転手", hiragana: "うんてんしゅ" },
+            { kanji: "乗り物", hiragana: "のりもの" },
+            { kanji: "乗車", hiragana: "じょうしゃ" },
+            { kanji: "写真", hiragana: "しゃしん" },
+            { kanji: "写す", hiragana: "うつす" },
+            { kanji: "写真家", hiragana: "しゃしんか" },
+            { kanji: "真ん中", hiragana: "まんなか" },
+            { kanji: "真っ黒", hiragana: "まっくろ" },
+            { kanji: "台所", hiragana: "だいどころ" },
+            { kanji: "台風", hiragana: "たいふう" },
+            { kanji: "中央", hiragana: "ちゅうおう" },
+            { kanji: "映画", hiragana: "えいが" },
+            { kanji: "映画館", hiragana: "えいがかん" },
+            { kanji: "映る", hiragana: "うつる" },
+            { kanji: "映す", hiragana: "うつす" },
+            { kanji: "漫画", hiragana: "まんが" },
+            { kanji: "計画", hiragana: "けいかく" },
+            { kanji: "画家", hiragana: "がか" },
+            { kanji: "小羊", hiragana: "こひつじ" },
+            { kanji: "洋服", hiragana: "ようふく" },
+            { kanji: "西洋", hiragana: "せいよう" },
+            { kanji: "洋食", hiragana: "ようしょく" },
+            { kanji: "和服", hiragana: "わふく" },
+            { kanji: "服装", hiragana: "ふくそう" },
+            { kanji: "着る", hiragana: "きる" },
+            { kanji: "上着", hiragana: "うわぎ" },
+            { kanji: "下着", hiragana: "したぎ" },
+            { kanji: "着く", hiragana: "つく" }
+        ];
+
+        const tableBody = document.getElementById("kanjiTable");
+
+        words.forEach((word, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td class="kanji">${word.kanji}</td>
+                <td><input type="text" id="answer-${index}" /></td>
+                <td id="result-${index}"></td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        function checkAnswers() {
+            words.forEach((word, index) => {
+                const userInput = document.getElementById(`answer-${index}`).value.trim();
+                const resultCell = document.getElementById(`result-${index}`);
+                resultCell.innerHTML = userInput === word.hiragana ? "✔️" : "❌";
+                resultCell.className = userInput === word.hiragana ? "correct" : "incorrect";
+            });
+        }
+    </script>
+</body>
+</html>
